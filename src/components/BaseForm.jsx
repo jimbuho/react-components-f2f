@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { 
     Box, 
+    Paper,
     Alert,
     Toolbar,
     Snackbar,
@@ -21,15 +22,17 @@ const BaseForm = ({
   title, 
   fields, 
   onSubmit, 
-  onCancel, 
-  openAlert = false, // Default prop for alert visibility
+  onCancel,
+  onOtherAction={}, 
+  openAlert = false,
   setOpenAlert,
   alertMessage = '',
   setAlertMessage,
   formState,
   setFormState,
-  cancelText='Cancelar',
-  nextText='Siguiente' }) => {
+  cancelText='Cancel',
+  nextText='Next',
+  otherActionText=''}) => {
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (event, fieldName='') => {
@@ -71,62 +74,78 @@ const BaseForm = ({
 
   return (
     <div className="form-wrapper">
-        <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
-            <Alert severity="error" sx={{ fontSize: 14 }}>
-            <span dangerouslySetInnerHTML={{ __html: alertMessage }} />
-            </Alert>
-        </Snackbar>      
-        <Box 
-            component="form"
-            sx={{
-            '& .MuiTextField-root': { m: 1, width: '25ch' },
-            }}
-            noValidate
-            autoComplete="off"
-            onSubmit={handleSubmit}
-        >
-            <Toolbar>
-                <Typography
-                    sx={{ flex: '1 1 100%' }}
-                    variant="h6"
-                    id="tableTitle"
-                    component="div"
-                >
-                <h2>{title}</h2>
-                </Typography>
-                <Stack direction="row" spacing={2}>
-                    <Button variant="outlined" onClick={onCancel}>{cancelText}</Button>
-                </Stack>
-            </Toolbar>
+      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
+          <Alert severity="error" sx={{ fontSize: 14 }}>
+          <span dangerouslySetInnerHTML={{ __html: alertMessage }} />
+          </Alert>
+      </Snackbar>
 
-            {fields.map((field) => {
-                const { name, label, value, type, options, error, ...fieldProps } = field;
-                const fieldValue = formState[name] || value;
-                const fieldError = errors[name] || null;
+      <Box
+        component="form"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh', // Altura completa de la ventana
+          width: '100vw',  // Ancho completo de la ventana
+          backgroundColor: '#f0f0f0', // Color de fondo para visibilidad
+        }}
+        noValidate
+        autoComplete="off"
+        onSubmit={handleSubmit}
+      >
+        <Paper
+          sx={{
+            width: '300px',
+            padding: '16px',
+            textAlign: 'center',
+            boxShadow: 3,
+          }}>
+        
+          <Toolbar>
+              <Typography
+                  sx={{ flex: '1 1 100%' }}
+                  variant="h6"
+                  id="tableTitle"
+                  component="div"
+              >
+              <h2>{title}</h2>
+              </Typography>
+              {otherActionText !== '' && (
+              <Stack direction="row" spacing={2}>
+                  <Button variant="outlined" onClick={onOtherAction}>{otherActionText}</Button>
+              </Stack>
+              )}
+          </Toolbar>
 
-                if(type === 'select') {
-                  return (
-                    <FieldSelect key={field.id} options={options} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} />
-                  );
-                }
-                else if(type === 'date') {
-                  return (
-                    <FieldDate key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError}/>
-                  );
-                }
-                else {
-                  return (
-                    <FieldEdit key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} {...fieldProps}/>
-                  );
-                }
-            })}
-            
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
-              <Button variant="outlined" onClick={onCancel}> <NavigateBeforeIcon/> {cancelText}</Button>
-              <Button variant="contained" type="submit"> {nextText} <NavigateNextIcon/> </Button>
+          {fields.map((field) => {
+              const { name, label, value, type, options, error, ...fieldProps } = field;
+              const fieldValue = formState[name] || value;
+              const fieldError = errors[name] || null;
+
+              if(type === 'select') {
+                return (
+                  <FieldSelect key={field.id} options={options} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} />
+                );
+              }
+              else if(type === 'date') {
+                return (
+                  <FieldDate key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError}/>
+                );
+              }
+              else {
+                return (
+                  <FieldEdit key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} {...fieldProps}/>
+                );
+              }
+          })}
+          
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button variant="outlined" onClick={onCancel}> <NavigateBeforeIcon/> {cancelText}</Button>
+            <Button variant="contained" type="submit"> {nextText} <NavigateNextIcon/> </Button>
           </Stack>
-
-        </Box>
+        </Paper>
+      </Box>
     </div>
   );
 };
