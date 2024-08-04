@@ -7,6 +7,7 @@ const FieldEdit = ({ label, name, value, onChange, error, ...props}) => {
       <TextField 
          label={label} 
          variant="outlined"
+         margin="normal"
          id={name}
          name={name}
          value={value}

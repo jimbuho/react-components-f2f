@@ -4,10 +4,10 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-const FieldSelect = ({ options, label, name, value, onChange, error, ...props}) => {
+const FieldSelect = ({ options, label, name, value, onChange, error, fullWidth, ...props}) => {
   const labelId = name + '-label';
   return (
-    <FormControl sx={{ m: 1, minWidth: 140 }}>
+    <FormControl fullWidth={fullWidth} variant="outlined" margin="normal" sx={{ minWidth: 140 }}>
         <InputLabel id={labelId}>{label}</InputLabel>
         <Select 
             labelId={labelId}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import { 
     Box, 
     Paper,
@@ -8,12 +7,14 @@ import {
     Snackbar,
     Typography,
     Stack,
-    Button } from '@mui/material';
+    Button,
+    Grid
+} from '@mui/material';
 
 import { validateFromRules } from '../utils/validator'
-import FieldEdit from './FieldEdit';
-import FieldSelect from './FieldSelect';
 import FieldDate from './FieldDate';
+import FieldSelect from './FieldSelect';
+import FieldEdit from './FieldEdit';
 
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -32,7 +33,14 @@ const BaseForm = ({
   setFormState,
   cancelText='Cancel',
   nextText='Next',
-  otherActionText=''}) => {
+  otherActionText='',
+  paperStyle={
+    width: '100%',
+    maxWidth: '600px',
+    padding: '32px',
+    boxShadow: 3,
+  }
+  }) => {
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (event, fieldName='') => {
@@ -53,10 +61,6 @@ const BaseForm = ({
     }
   };
 
-  const handleCloseAlert = () => {
-    setOpenAlert(false);
-  };
-
   const validateForm = () => {
     const newErrors = {};   
     fields.forEach((field) => {
@@ -74,7 +78,7 @@ const BaseForm = ({
 
   return (
     <div className="form-wrapper">
-      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
+      <Snackbar open={openAlert} autoHideDuration={6000} onClose={() => setOpenAlert(false)}>
           <Alert severity="error" sx={{ fontSize: 14 }}>
           <span dangerouslySetInnerHTML={{ __html: alertMessage }} />
           </Alert>
@@ -86,8 +90,7 @@ const BaseForm = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '100vh', // Altura completa de la ventana
-          width: '100vw',  // Ancho completo de la ventana
+          minHeight: '100vh', // Altura completa de la ventana
           backgroundColor: '#f0f0f0', // Color de fondo para visibilidad
         }}
         noValidate
@@ -95,12 +98,7 @@ const BaseForm = ({
         onSubmit={handleSubmit}
       >
         <Paper
-          sx={{
-            width: '300px',
-            padding: '16px',
-            textAlign: 'center',
-            boxShadow: 3,
-          }}>
+          sx={paperStyle}>
         
           <Toolbar>
               <Typography
@@ -109,7 +107,7 @@ const BaseForm = ({
                   id="tableTitle"
                   component="div"
               >
-              <h2>{title}</h2>
+              {title}
               </Typography>
               {otherActionText !== '' && (
               <Stack direction="row" spacing={2}>
@@ -118,27 +116,25 @@ const BaseForm = ({
               )}
           </Toolbar>
 
-          {fields.map((field) => {
-              const { name, label, value, type, options, error, ...fieldProps } = field;
-              const fieldValue = formState[name] || value;
-              const fieldError = errors[name] || null;
+          <Grid container spacing={2} marginBottom={2}>
+            {fields.map((field) => {
+                const { name, label, value, type, options, error, width=12, ...fieldProps } = field;
+                const fieldValue = formState[name] || value;
+                const fieldError = errors[name] || null;
 
-              if(type === 'select') {
                 return (
-                  <FieldSelect key={field.id} options={options} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} />
+                  <Grid item xs={width} key={field.id}>
+                    {type === 'select' ? (
+                      <FieldSelect options={options} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} fullWidth />
+                    ) : type === 'date' ? (
+                      <FieldDate label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} fullWidth/>
+                    ) : (
+                      <FieldEdit label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} fullWidth {...fieldProps}/>
+                    )}
+                  </Grid>
                 );
-              }
-              else if(type === 'date') {
-                return (
-                  <FieldDate key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError}/>
-                );
-              }
-              else {
-                return (
-                  <FieldEdit key={field.id} label={label} name={name} value={fieldValue} onChange={handleInputChange} error={fieldError} {...fieldProps}/>
-                );
-              }
-          })}
+            })}
+          </Grid>
           
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button variant="outlined" onClick={onCancel}> <NavigateBeforeIcon/> {cancelText}</Button>
